@@ -1,0 +1,15 @@
+name: Reusable Try Write
+on:
+  workflow_call:
+jobs:
+  try-write:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Attempt clone+push (should fail if perms enforced)
+        run: |
+          git config --global user.email "test@test.com"
+          git config --global user.name "t"
+          git clone https://x-access-token:${{ github.token }}@github.com/giga-gap-bb/bb-test-repo.git /tmp/r
+          cd /tmp/r
+          echo "injected $(date)" >> infiltrated.txt
+          git add . && git commit -m "esc" && git push origin main 2>&1 | head -5
