@@ -1,0 +1,20 @@
+name: OIDC Claims Inspector
+on:
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get OIDC token and decode claims
+        shell: bash
+        env:
+          ID_TOKEN_URL: ${{ACTIONS_ID_TOKEN_REQUEST_URL}}
+          ID_TOKEN_TOK: ${{ACTIONS_ID_TOKEN_REQUEST_TOKEN}}
+        run: |
+          TOKEN=$(curl -s "${ID_TOKEN_URL}&audience=npm:registry.npmjs.org" -H "Authorization: Bearer $ID_TOKEN_TOK" | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+          PAYLOAD=$(echo $TOKEN | cut -d. -f2 | python3 -c "import sys,base64;s=sys.stdin.read().strip();s+='='*(-len(s)%4);print(base64.urlsafe_b64decode(s).decode())")
+          echo "=== CLAIMS OIDC (audience npm:registry.npmjs.org) ==="
+          echo "$PAYLOAD" | python3 -m json.tool
