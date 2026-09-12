@@ -1,0 +1,7 @@
+name: Caller Restricted
+on: [push]
+permissions:
+  contents: read
+jobs:
+  call-reusable:
+    uses: giga-gap-bb/bb-test-repo/.github/workflows/reusable-try-write.yml@main
