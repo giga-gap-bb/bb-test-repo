@@ -1,7 +1,10 @@
-name: Caller Restricted
-on: [push]
+name: Caller
+on:
+  push:
+    paths:
+      - '.github/workflows/caller.yml'
 permissions:
   contents: read
 jobs:
   call-reusable:
-    uses: giga-gap-bb/bb-test-repo/.github/workflows/reusable-try-write.yml@main
+    uses: giga-gap-bb/bb-test-repo/.github/workflows/reusable-oidc.yml@main
