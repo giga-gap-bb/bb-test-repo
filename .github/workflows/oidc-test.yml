@@ -1,4 +1,4 @@
-name: OIDC v5
+name: OIDC v6
 on: [push]
 permissions:
   id-token: write
@@ -6,27 +6,17 @@ permissions:
 jobs:
   get-token:
     runs-on: ubuntu-latest
-    env:
-      ID_TOKEN_URL: ${{ actions_id_token_request_url }}
     steps:
-      - name: Env check
+      - name: Fetch
         run: |
-          echo "URL env: $ACTIONS_ID_TOKEN_REQUEST_URL"
-          echo "TOKEN env present: $([ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ] && echo yes || echo no)"
-          HTTP=$(curl -sS -o /tmp/resp.json -w '%{http_code}' \
-            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-test")
+          HTTP=$(curl -sS -o /tmp/resp.json -w '%{http_code}' -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-test")
           echo "HTTP=$HTTP"
           cat /tmp/resp.json
           echo ""
-          VALUE=$(python3 -c "import json;print(json.load(open('/tmp/resp.json'))['value'])")
-          echo "VALUE_LEN=${#VALUE}"
-          python3 - <<'PYEOF'
-          import base64, json, os
-          tok = open('/tmp/resp.json').read()
-          val = json.loads(tok)['value']
-          payload_b64 = val.split('.')[1]
-          payload_b64 += '=' * (-len(payload_b64) % 4)
-          claims = json.loads(base64.urlsafe_b64decode(payload_b64))
-          print("CLAIMS=" + json.dumps(claims, indent=1))
-          PYEOF
+          python3 /dev/stdin << 'EOF'
+          import base64, json
+          val = json.load(open('/tmp/resp.json'))['value']
+          p = val.split('.')[1]
+          p += '=' * (-len(p) % 4)
+          print("CLAIMS=" + json.dumps(json.loads(base64.urlsafe_b64decode(p))))
+          EOF
