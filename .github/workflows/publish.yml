@@ -1,0 +1,26 @@
+name: Publish
+on:
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
+      - name: Install npm latest
+        run: npm install -g npm@latest
+      - name: Copy package
+        run: |
+          mkdir -p /tmp/pub && cp package.json /tmp/pub/
+          cd /tmp/pub
+      - name: Publish via OIDC
+        run: |
+          cd /tmp/pub
+          npm publish --access public --provenance
