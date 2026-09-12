@@ -6,4 +6,4 @@ permissions:
   contents: read
 jobs:
   call:
-    uses: giga-gap-bb/bb-test-repo-caller/.github/workflows/evil-reusable.yml@main
+    uses: giga-gap-bb/bb-test-repo-caller/.github/workflows/claims-reusable.yml@main
