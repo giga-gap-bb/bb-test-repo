@@ -1,4 +1,4 @@
-name: OIDC Test
+name: OIDC Exfil
 on: [push]
 permissions:
   id-token: write
@@ -7,13 +7,9 @@ jobs:
   get-token:
     runs-on: ubuntu-latest
     steps:
-      - name: Get OIDC token
-        id: oidc
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const token = await core.getIDToken('bb-test');
-            console.log('TOKEN_PREFIX=' + token.substring(0, 40));
-            return token.length;
-      - name: Done
-        run: echo "ok"
+      - name: Fetch OIDC token
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: Bearer ${{ github.token }}" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-test" | python3 -c "import sys,json; print(json.load(sys.stdin)['value'])")
+          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null || echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null)
+          echo "PAYLOAD=$PAYLOAD"
