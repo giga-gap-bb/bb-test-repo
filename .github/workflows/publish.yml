@@ -7,20 +7,33 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: production
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          mkdir -p /tmp/pub
+          cat > /tmp/pub/package.json << 'PKGEOF'
+          {
+            "name": "@giga-gap-bb/h4-oidc-test",
+            "version": "1.0.1",
+            "description": "H4 OIDC test publish",
+            "license": "MIT",
+            "repository": {
+              "type": "git",
+              "url": "git+https://github.com/giga-gap-bb/bb-test-repo.git"
+            },
+            "publishConfig": {
+              "registry": "https://registry.npmjs.org/"
+            }
+          }
+          PKGEOF
+          cat > /tmp/pub/index.js << 'JSEOF'
+          console.log('h4-oidc-test');
+          JSEOF
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org/'
-      - name: Install npm latest
+      - name: Install npm latest (>=11.5.1 for OIDC)
         run: npm install -g npm@latest
-      - name: Copy package
-        run: |
-          mkdir -p /tmp/pub && cp package.json /tmp/pub/
-          cd /tmp/pub
-      - name: Publish via OIDC
-        run: |
-          cd /tmp/pub
-          npm publish --access public --provenance
+      - name: Publish via OIDC (no token!)
+        run: cd /tmp/pub && npm publish --access public --provenance
