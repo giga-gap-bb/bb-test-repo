@@ -1,0 +1,36 @@
+name: Publish
+on:
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: |
+          mkdir -p /tmp/pub
+          cat > /tmp/pub/package.json << 'PKGEOF'
+          {
+            "name": "@giga-gap-bb/h4-oidc-test",
+            "version": "1.0.2",
+            "description": "H4 MISMATCH TEST - workflow NOT authorized (filename not-publish.yml, YAML name = Publish)",
+            "license": "MIT",
+            "repository": {
+              "type": "git",
+              "url": "git+https://github.com/giga-gap-bb/bb-test-repo.git"
+            },
+            "publishConfig": {
+              "registry": "https://registry.npmjs.org/"
+            }
+          }
+          PKGEOF
+          echo "console.log('mismatch');" > /tmp/pub/index.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org/'
+      - run: npm install -g npm@latest
+      - name: Publish via OIDC
+        run: cd /tmp/pub && npm publish --access public --provenance
