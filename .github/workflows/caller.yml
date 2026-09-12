@@ -2,6 +2,7 @@ name: Caller OIDC
 on: [push]
 permissions:
   contents: read
+  id-token: write
 jobs:
   call-reusable:
     uses: giga-gap-bb/bb-test-repo/.github/workflows/reusable-oidc.yml@main
