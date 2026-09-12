@@ -8,11 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get OIDC token
-        env:
-          TOKEN: ${{ actions/id-token }}
-        run: |
-          # récupérer le token depuis l'endpoint métadonnées
-          TOKEN=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=bb-test" | python3 -c "import sys,json; print(json.load(sys.stdin)['value'])")
-          echo "TOKEN_LEN=$(echo -n $TOKEN | wc -c)"
-          echo "$TOKEN" | cut -c1-50
+        id: oidc
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('bb-test');
+            console.log('TOKEN_PREFIX=' + token.substring(0, 40));
+            return token.length;
+      - name: Done
+        run: echo "ok"
