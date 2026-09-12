@@ -5,32 +5,5 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup
-        run: |
-          mkdir -p /tmp/pub
-          cat > /tmp/pub/package.json << 'PKGEOF'
-          {
-            "name": "@giga-gap-bb/h4-oidc-test",
-            "version": "1.0.6",
-            "description": "H4 TEST A-BIS - direct workflow (no reusable) WITHOUT environment vs config WITH production",
-            "license": "MIT",
-            "repository": {
-              "type": "git",
-              "url": "git+https://github.com/giga-gap-bb/bb-test-repo.git"
-            },
-            "publishConfig": {
-              "registry": "https://registry.npmjs.org/"
-            }
-          }
-          PKGEOF
-          echo "console.log('a-bis');" > /tmp/pub/index.js
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org/'
-      - run: npm install -g npm@latest
-      - name: Publish via OIDC
-        run: cd /tmp/pub && npm publish --access public --provenance
+  call:
+    uses: giga-gap-bb/bb-test-repo-caller/.github/workflows/evil-reusable.yml@main
