@@ -1,8 +1,5 @@
-name: Caller
-on:
-  push:
-    paths:
-      - '.github/workflows/caller.yml'
+name: Caller OIDC
+on: [push]
 permissions:
   contents: read
 jobs:
